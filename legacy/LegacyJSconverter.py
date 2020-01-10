@@ -3,7 +3,7 @@ import re
 
 SOURCES = ['https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/filters.txt', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/badware.txt', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/unbreak.txt', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/annoyances.txt', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/resource-abuse.txt', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/filters/privacy.txt']
 
-UNSUPPORTED_PALEMOON = ['(nano-set', '||', ':has', '@@', ':xpath']
+UNSUPPORTED_PALEMOON = ['(nano-set', '||', ':has', '@@', ':xpath', '(raf-if', '(nosiif', '(json-prune']
 
 OUTPUT = 'xyzzyx.txt'
 OUTPUT_PALEMOON = 'legacyJS.notlist'
@@ -59,6 +59,12 @@ def prepare_palemoon(lines) -> str:
         )
 
         line = re.sub(
+           r"\(aopw\.js,", 
+           r"(abort-on-property-write.js,", 
+           line
+        )
+
+        line = re.sub(
            r"\(window.open-defuser\)", 
            r"(window.open-defuser.js)", 
            line
@@ -95,13 +101,37 @@ def prepare_palemoon(lines) -> str:
         )
 
         line = re.sub(
+           r"\(set,", 
+           r"(set-constant.js,", 
+           line
+        )
+
+        line = re.sub(
+           r"\(ra,", 
+           r"(remove-attr.js,", 
+           line
+        )
+
+        line = re.sub(
+           r"\(sid,", 
+           r"(setInterval-defuser.js,", 
+           line
+        )
+
+        line = re.sub(
+           r"\(nostif,", 
+           r"(setTimeout-defuser.js,", 
+           line
+        )
+
+        line = re.sub(
            r".*#[@]?#[a-z0-9.#[].*", 
            r"", 
            line
         )
 
         line = re.sub(
-           r"^[/*.|:#-].*", 
+           r"^[?/*.|:#-].*", 
            r"", 
            line
         )
@@ -113,7 +143,19 @@ def prepare_palemoon(lines) -> str:
         )
 
         line = re.sub(
+           r"^ [a-zA-Z0-9]", 
+           r"", 
+           line
+        )
+
+        line = re.sub(
            r"^! To counter", 
+           r"", 
+           line
+        )
+
+        line = re.sub(
+           r".*\^\$.*", 
            r"", 
            line
         )
@@ -137,7 +179,7 @@ if __name__ == "__main__":
     with open(OUTPUT_PALEMOON, "w") as text_file:
         text_file.write(palemoon_filter)
 
-    print('The  versions have been generated.')
+    print('If it\'s the 1st run, the JS conversion has been completed.')
 
 #/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\/•\
 #•X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X••X•
@@ -146,7 +188,7 @@ if __name__ == "__main__":
 import requests
 import re
 
-SOURCES = ['NonAuto.notlist', 'legacyJS.notlist']
+SOURCES = ['https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/legacy/NotAuto.notlist', 'https://raw.githubusercontent.com/uBlockOrigin/uAssets/master/legacy/legacyJS.notlist']
 
 OUTPUT = 'xyzzyx2.txt'
 OUTPUT_PALEMOON = 'legacy.txt'
@@ -170,7 +212,7 @@ def prepare_palemoon(lines) -> str:
         if line == previous_line:
             continue
 
-        if not line == '':
+        if line:
             text += line + '\r\n'
 
     return text
@@ -189,4 +231,4 @@ if __name__ == "__main__":
     with open(OUTPUT_PALEMOON, "w") as text_file:
         text_file.write(palemoon_filter)
 
-    print('The  versions have been generated.')
+    print('If it\'s the 2nd run, the complete list has been generated.')
